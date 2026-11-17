@@ -628,7 +628,7 @@ function parseJsonLoose(text) {
 async function adminCreateKeys(request, env) {
   const b = await readJson(request);
   const count = Math.round(clampNum(b.count, 1, 50, 1));
-  const days = Math.round(clampNum(b.durationDays, 1, 3650, 30));
+  const days = Math.round(clampNum(b.durationDays, 1, 36500, 30));
   const quotaSeconds = Math.round(clampNum(b.quotaHours, 0.05, 100000, 10) * 3600);
   const maxDevices = Math.round(clampNum(b.maxDevices, 1, 20, 2));
   const plan = String(b.plan || 'custom').slice(0, 40);
@@ -682,7 +682,7 @@ async function adminKeyAction(request, env) {
       await DB.prepare("UPDATE licenses SET status = 'active' WHERE license_key = ?").bind(key).run();
       break;
     case 'extend': {
-      const days = Math.round(clampNum(b.days, -3650, 3650, 0));
+      const days = Math.round(clampNum(b.days, -36500, 36500, 0));
       if (lic.expires_at) {
         // Extending an already-expired key counts from now, otherwise from its current expiry.
         const baseMs = Math.max(new Date(lic.expires_at).getTime(), days > 0 ? Date.now() : 0);

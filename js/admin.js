@@ -124,10 +124,15 @@ async function create() {
   }
 }
 
+const OWNER = { id: 'owner', name: '👑 คีย์แอดมิน (ใช้เอง)', days: 9999, hours: 99999, devices: 5 };
+
 function initPlans() {
   const sel = $('#plan');
-  const plans = CONFIG.PLANS || [];
-  sel.replaceChildren(...plans.map((p) => el('option', { value: p.id }, `${p.name} (฿${p.price})`)), el('option', { value: 'custom' }, 'กำหนดเอง'));
+  const plans = [...(CONFIG.PLANS || []), OWNER];
+  sel.replaceChildren(
+    ...plans.map((p) => el('option', { value: p.id }, p.price ? `${p.name} (฿${p.price})` : `${p.name} · ${p.days} วัน`)),
+    el('option', { value: 'custom' }, 'กำหนดเอง'),
+  );
   const apply = () => {
     const p = plans.find((x) => x.id === sel.value);
     if (!p) return;
