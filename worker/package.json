@@ -1,0 +1,16 @@
+{
+  "name": "klipded-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "License keys + AI proxy for KlipDed (Cloudflare Worker + D1)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute klipded --remote --file=schema.sql",
+    "db:init:local": "wrangler d1 execute klipded --local --file=schema.sql",
+    "logs": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

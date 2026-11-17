@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>แอดมิน — คลิปเด็ด</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="logo">🎬</span><span>คลิปเด็ด<br><small>หลังบ้าน · ออกคีย์</small></span></a>
+    <div class="spacer"></div>
+    <button class="btn ghost sm hidden" id="logout">ออกจากระบบ</button>
+  </header>
+  <main class="container">
+    <section class="card" id="login" style="max-width:480px;margin:40px auto">
+      <h2>เข้าสู่หลังบ้าน</h2>
+      <label class="field">รหัสแอดมิน (ADMIN_TOKEN)<input type="password" id="token" autocomplete="current-password"></label>
+      <button class="btn primary" id="btnLogin" style="margin-top:12px">เข้าสู่ระบบ</button>
+      <div class="small" id="loginMsg" style="margin-top:10px"></div>
+    </section>
+
+    <section id="panel" class="hidden">
+      <div class="stats" id="stats" style="margin-bottom:18px"></div>
+      <div class="card">
+        <h2>ออกคีย์ใหม่</h2>
+        <div class="grid3">
+          <label class="field">แพ็กเกจ<select id="plan"></select></label>
+          <label class="field">จำนวนวัน<input type="number" id="days" min="1" value="30"></label>
+          <label class="field">ชั่วโมงวิดีโอ<input type="number" id="hours" min="0.1" step="0.5" value="15"></label>
+          <label class="field">จำนวนเครื่อง<input type="number" id="devices" min="1" value="2"></label>
+          <label class="field">จำนวนคีย์<input type="number" id="count" min="1" max="50" value="1"></label>
+          <label class="field">โน้ต (ชื่อลูกค้า / LINE)<input type="text" id="note" placeholder="เช่น คุณเอ LINE: aaa"></label>
+        </div>
+        <button class="btn primary" id="btnCreate" style="margin-top:14px">➕ สร้างคีย์</button>
+        <div id="created" style="margin-top:14px"></div>
+      </div>
+      <div class="card">
+        <div class="row" style="margin-bottom:12px">
+          <h2 style="margin:0">คีย์ทั้งหมด</h2>
+          <div class="spacer"></div>
+          <input type="text" id="q" placeholder="ค้นหาคีย์ / โน้ต" style="max-width:260px">
+          <button class="btn sm" id="btnReload">รีเฟรช</button>
+        </div>
+        <div class="table-wrap">
+          <table class="keys">
+            <thead><tr><th>คีย์</th><th>โน้ต</th><th>สถานะ</th><th>หมดอายุ</th><th>ใช้ไป / โควตา</th><th>เครื่อง</th><th>จัดการ</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

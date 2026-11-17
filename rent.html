@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เช่าคีย์ — คลิปเด็ด KlipDed</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="logo">🎬</span><span>คลิปเด็ด<br><small>KlipDed · AI Clipper</small></span></a>
+    <div class="spacer"></div>
+    <a class="btn ghost sm" href="./">กลับไปหน้าตัดคลิป</a>
+  </header>
+  <main class="container">
+    <div style="text-align:center;margin:18px 0 26px">
+      <h1>เช่าคีย์ <span class="grad-text">คลิปเด็ด</span></h1>
+      <p class="muted">ไม่ต้องสมัคร API เอง ไม่ต้องตั้งค่าอะไร ใส่คีย์แล้วใช้ AI ตัดคลิปได้ทันที</p>
+    </div>
+    <div class="plans" id="plans"></div>
+
+    <div class="card" id="payBox" style="margin-top:22px">
+      <div class="pay">
+        <div>
+          <div class="qr" id="qr"></div>
+        </div>
+        <div>
+          <h2 id="payTitle">เลือกแพ็กเกจด้านบน</h2>
+          <ol class="howto">
+            <li>สแกน QR พร้อมเพย์ด้วยแอปธนาคาร (ยอดเงินใส่ไว้ให้แล้ว)</li>
+            <li>ส่ง<b>สลิป</b> + บอกชื่อแพ็กเกจ มาทาง <a id="lineLink" href="#" target="_blank" rel="noopener">LINE</a></li>
+            <li>รับคีย์ แล้วนำไปใส่ที่ปุ่ม “ใส่คีย์” มุมขวาบนของหน้าตัดคลิป</li>
+          </ol>
+          <div class="row"><a class="btn primary" id="lineBtn" href="#" target="_blank" rel="noopener">💬 ส่งสลิปทาง LINE</a></div>
+          <p class="tiny" id="ppNote" style="margin-top:12px"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq" style="margin-top:22px">
+      <h2>คำถามที่พบบ่อย</h2>
+      <details><summary>“ชั่วโมงวิดีโอ” คืออะไร?</summary><p class="muted">คือความยาวรวมของวิดีโอที่ให้ AI วิเคราะห์ เช่น แพ็กเกจ 15 ชม. ใช้กับไลฟ์ยาว 1 ชม. ได้ประมาณ 15 ไลฟ์ การเรนเดอร์คลิปและแก้ไขไม่กินโควตา</p></details>
+      <details><summary>คีย์เริ่มนับวันเมื่อไร?</summary><p class="muted">เริ่มนับตอนใส่คีย์ครั้งแรก ไม่ใช่ตอนซื้อ</p></details>
+      <details><summary>ใช้กับเครื่องไหนได้บ้าง?</summary><p class="muted">คอมพิวเตอร์ Windows / Mac ที่ใช้ Chrome หรือ Edge เวอร์ชันล่าสุด แต่ละแพ็กเกจใช้ได้ตามจำนวนเครื่องที่ระบุ</p></details>
+      <details><summary>วางลิงก์ YouTube ได้ไหม?</summary><p class="muted">ได้ เมื่อติดตั้งโปรแกรมช่วยโหลด (KlipDed Helper) บนคอมของคุณ หรือจะโหลดวิดีโอเองแล้วลากไฟล์มาวางก็ได้</p></details>
+      <details><summary>รองรับภาษาอะไร?</summary><p class="muted">ไทยและอังกฤษ (ปนกันได้) ซับและชื่อคลิปออกมาเป็นภาษาเดียวกับในวิดีโอ</p></details>
+      <details><summary>เรื่องลิขสิทธิ์</summary><p class="muted">ผู้ใช้ต้องมีสิทธิ์ในวิดีโอที่นำมาตัด เช่น วิดีโอของตัวเอง หรือได้รับอนุญาตจากเจ้าของช่อง</p></details>
+    </div>
+  </main>
+  <footer>คลิปเด็ด · KlipDed</footer>
+  <script type="module" src="js/rent.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+name = "klipded-api"
+main = "src/worker.js"
+compatibility_date = "2026-10-01"
+
+# 1) npx wrangler d1 create klipded
+# 2) paste the database_id it prints below
+[[d1_databases]]
+binding = "DB"
+database_name = "klipded"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[vars]
+# Put your website origin here after it is online, e.g. "https://n0bss.github.io"
+ALLOWED_ORIGINS = "*"
+GROQ_STT_MODEL = "whisper-large-v3"
+GROQ_LLM_MODEL = "openai/gpt-oss-120b"
+GEMINI_MODEL = "gemini-flash-latest"
+GEMINI_FALLBACK_MODEL = "gemini-flash-lite-latest"
+KEY_PREFIX = "KD"
+HIGHLIGHTS_PER_DAY = "40"
+
+# Secrets (never put them in this file):
+#   npx wrangler secret put GROQ_API_KEY
+#   npx wrangler secret put GEMINI_API_KEY
+#   npx wrangler secret put ADMIN_TOKEN
