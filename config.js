@@ -5,7 +5,7 @@ export const CONFIG = {
   TAGLINE: 'ตัดคลิปสั้นจากวิดีโอยาวด้วย AI ลง TikTok / Shorts / Reels ได้ทันที',
 
   // URL ของหลังบ้าน (Cloudflare Worker) ที่ได้หลังจาก deploy เช่น https://klipded-api.yourname.workers.dev
-  API_BASE: 'https://klipded-api.YOUR-SUBDOMAIN.workers.dev',
+  API_BASE: 'https://klipded-api.wijaijoy.workers.dev',
 
   // ช่องทางติดต่อ / ส่งสลิป
   CONTACT_LINE_URL: 'https://line.me/ti/p/~YOUR_LINE_ID',

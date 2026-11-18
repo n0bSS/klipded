@@ -7,11 +7,11 @@ compatibility_date = "2026-10-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "klipded"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "14b45f79-5ce7-4b88-b28d-3ee6163a8af8"
 
 [vars]
 # Put your website origin here after it is online, e.g. "https://n0bss.github.io"
-ALLOWED_ORIGINS = "*"
+ALLOWED_ORIGINS = "https://n0bss.github.io,http://localhost:8080,http://127.0.0.1:8080"
 GROQ_STT_MODEL = "whisper-large-v3"
 GROQ_LLM_MODEL = "openai/gpt-oss-120b"
 GEMINI_MODEL = "gemini-flash-latest"
