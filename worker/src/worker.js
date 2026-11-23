@@ -244,7 +244,11 @@ async function handleTranscribe(request, env) {
   }, 3);
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 400);
-    throw httpError(502, res.status === 429 ? 'stt_busy' : 'stt_failed', { upstreamStatus: res.status, detail });
+    // Groq says how long to wait in the header and/or the message ("Please try again in 7m26.5s")
+    const m = detail.match(/try again in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/i);
+    const fromText = m ? (Number(m[1] || 0) * 3600 + Number(m[2] || 0) * 60 + Number(m[3] || 0)) : 0;
+    const retryAfter = Math.ceil(Math.max(Number(res.headers.get('retry-after')) || 0, fromText));
+    throw httpError(502, res.status === 429 ? 'stt_busy' : 'stt_failed', { upstreamStatus: res.status, detail, retryAfter });
   }
   const data = await res.json();
   const seconds = Math.max(1, Math.ceil(Number(data.duration) || declared || 1));

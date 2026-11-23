@@ -2,7 +2,52 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 export const lerp = (a, b, t) => a + (b - a) * t;
-export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Timers run in a worker: Chrome throttles page timers in background tabs to once a minute,
+// worker timers keep their pace, so long jobs don't stall when the user switches tabs.
+let timerWorker = null;
+let timerSeq = 0;
+const timerWaits = new Map();
+function workerTimer() {
+  if (timerWorker === null) {
+    try {
+      const src = 'onmessage=(e)=>setTimeout(()=>postMessage(e.data[0]),e.data[1])';
+      timerWorker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      timerWorker.onmessage = (e) => { timerWaits.get(e.data)?.(); timerWaits.delete(e.data); };
+    } catch {
+      timerWorker = false;
+    }
+  }
+  return timerWorker;
+}
+export const sleep = (ms) => new Promise((r) => {
+  const w = workerTimer();
+  if (!w) return setTimeout(r, ms);
+  const id = ++timerSeq;
+  timerWaits.set(id, r);
+  w.postMessage([id, ms]);
+});
+
+// Keeps a long job alive while the tab is in the background: a held Web Lock stops Chrome from
+// freezing or discarding the tab, and a screen wake lock (re-taken whenever the tab is visible again)
+// stops the PC from going to sleep. Returns a function that releases both.
+export function keepAlive(name) {
+  let releaseLock = null;
+  let wake = null;
+  let stopped = false;
+  if (navigator.locks) navigator.locks.request(name, () => new Promise((r) => { releaseLock = r; if (stopped) r(); })).catch(() => {});
+  const takeWake = async () => {
+    if (stopped || document.visibilityState !== 'visible' || !navigator.wakeLock) return;
+    try { wake = await navigator.wakeLock.request('screen'); } catch {}
+  };
+  document.addEventListener('visibilitychange', takeWake);
+  takeWake();
+  return () => {
+    stopped = true;
+    document.removeEventListener('visibilitychange', takeWake);
+    releaseLock?.();
+    wake?.release().catch(() => {});
+  };
+}
 
 export function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);

@@ -1,5 +1,5 @@
 // KlipDed main app: source -> AI clip picking -> vertical previews -> MP4 export.
-import { $, $$, el, toast, fmtTime, fmtHours, fmtBytes, copyText, downloadBlob, safeFileName, loadJSON, saveJSON, clamp, debounce, sleep } from './util.js';
+import { $, $$, el, toast, fmtTime, fmtHours, fmtBytes, copyText, downloadBlob, safeFileName, loadJSON, saveJSON, clamp, debounce, sleep, keepAlive } from './util.js';
 import { api, errorText } from './api.js';
 import * as License from './license.js';
 import { openVideo, extractAudioChunks, grabFrame } from './media.js';
@@ -400,7 +400,17 @@ async function transcribe(info, ranges, o, step, signal) {
         break;
       } catch (e) {
         if (e.name === 'AbortError') throw e;
-        if (['stt_busy', 'network', 'stt_failed', 'upstream_unreachable'].includes(e.code) && attempt < 3) {
+        // stt_busy = the speech-to-text quota per hour is used up: wait as long as it says and carry on
+        if (e.code === 'stt_busy' && attempt < 60) {
+          const wait = clamp(Number(e.data?.retryAfter) || 30, 10, 600);
+          for (let s = Math.ceil(wait); s > 0; s--) {
+            if (signal.aborted) throw new DOMException('aborted', 'AbortError');
+            step.progress(undefined, `ถอดเสียงแล้ว ${done}/${total} ช่วง · โควตาถอดเสียงเต็มชั่วคราว รอ ${fmtTime(s)} แล้วทำต่อเอง…`);
+            await sleep(1000);
+          }
+          continue;
+        }
+        if (['network', 'stt_failed', 'upstream_unreachable'].includes(e.code) && attempt < 3) {
           step.progress(undefined, `ระบบถอดเสียงไม่ว่าง กำลังลองใหม่… (${attempt + 1}/3)`);
           await sleep(3000 * (attempt + 1));
           continue;
@@ -541,6 +551,7 @@ async function analyze() {
   S.busy = true;
   S.ctrl = new AbortController();
   const signal = S.ctrl.signal;
+  const release = keepAlive('klipded-analyze');
   show('#secSource', false);
   show('#secResults', false);
   show('#secProgress');
@@ -583,6 +594,7 @@ async function analyze() {
       toast(msg, 'err', 9000);
     } else toast('ยกเลิกแล้ว');
   } finally {
+    release();
     S.busy = false;
     S.ctrl = null;
     refreshKeyPill();
