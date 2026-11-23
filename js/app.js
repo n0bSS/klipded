@@ -251,6 +251,43 @@ function dlNote(st) {
   return `กำลังโหลดวิดีโอ ${Math.round((st.progress || 0) * 100)}%`;
 }
 
+// A link's video is served by the helper under a job id that only lives while the helper runs.
+// If the helper was closed (or restarted) the old file URL is dead: ask it for the same link again
+// (it reuses the file already on disk) and re-attach. Resolves true when the video was re-attached.
+let recovering = null;
+let helperWarnedAt = 0;
+function recoverHelperVideo() {
+  const src = S.src;
+  if (src?.kind !== 'url' || !S.videoUrl) return Promise.resolve(false);
+  recovering ||= (async () => {
+    try {
+      await helper.health();
+    } catch {
+      if (Date.now() - helperWarnedAt > 10000) {
+        helperWarnedAt = Date.now();
+        toast('โปรแกรมช่วยโหลดปิดอยู่ — ดับเบิลคลิก start-helper.bat เปิดค้างไว้ แล้วกดเล่นอีกครั้ง', 'err', 9000);
+      }
+      return false;
+    }
+    try {
+      const r = await fetch(S.videoUrl, { headers: { Range: 'bytes=0-0' } });
+      if (r.ok) return false; // file is fine, the problem is something else
+    } catch {}
+    toast('กำลังเชื่อมวิดีโอกับโปรแกรมช่วยโหลดใหม่…');
+    const job = await helper.download(src.url, 1080);
+    await waitForJob(job.id);
+    if (S.src !== src) return false;
+    const fileUrl = helper.fileUrl(job.id);
+    src.jobId = job.id;
+    attachInfo(await openVideo(fileUrl), fileUrl, true);
+    S.clips.forEach((c) => drawThumb(c));
+    if (E.clip) seekPreview(E.clip.start + 0.02);
+    toast('เชื่อมวิดีโอได้แล้ว ✓', 'ok');
+    return true;
+  })().catch((e) => { console.warn('helper recover failed', e); return false; }).finally(() => { recovering = null; });
+  return recovering;
+}
+
 function openHelperModal(url) {
   pendingUrl = url || pendingUrl;
   $('#helperState').textContent = '';
@@ -653,6 +690,7 @@ async function drawThumbNow(c) {
     drawScene(ctx, (cx, ...a) => cx.drawImage(frame, ...a), frame.width, frame.height, t, jobFor(c), thumbScratch);
   } catch (e) {
     console.warn('thumbnail failed', e);
+    recoverHelperVideo();
   }
 }
 
@@ -841,12 +879,18 @@ function loop() {
 function playPreview() {
   if (E.useStill) return toast('เบราว์เซอร์เล่นไฟล์นี้ไม่ได้ ดูพรีวิวแบบภาพนิ่งแทน (เรนเดอร์ได้ปกติ)', 'err');
   const v = $('#pvVideo');
+  if (E.starting) return;
   if (v.currentTime < E.clip.start || v.currentTime >= E.clip.end - 0.05) v.currentTime = E.clip.start;
+  E.starting = true;
   v.play().then(() => {
     E.playing = true;
     $('#pvPlay').textContent = '⏸';
     loop();
-  }).catch((err) => toast('เล่นวิดีโอไม่ได้: ' + err.message, 'err'));
+  }).catch(async (err) => {
+    if (err.name === 'AbortError') return; // paused before playback started
+    if (await recoverHelperVideo()) return;
+    toast('เล่นวิดีโอไม่ได้: ' + err.message, 'err');
+  }).finally(() => { E.starting = false; });
 }
 
 function pausePreview() {
@@ -1220,7 +1264,10 @@ function wire() {
   const pv = $('#pvVideo');
   pv.addEventListener('seeked', previewDraw);
   pv.addEventListener('loadeddata', previewDraw);
-  pv.addEventListener('error', () => { if (E.clip) { E.useStill = true; seekPreview(E.clip.start); } });
+  pv.addEventListener('error', async () => {
+    if (await recoverHelperVideo()) return;
+    if (E.clip) { E.useStill = true; seekPreview(E.clip.start); }
+  });
   $('#edStart').addEventListener('change', (e) => setClipTime(parseTime(e.target.value), E.clip.end));
   $('#edEnd').addEventListener('change', (e) => setClipTime(E.clip.start, parseTime(e.target.value)));
   $$('#mEditor [data-nudge]').forEach((b) => b.addEventListener('click', () => {
